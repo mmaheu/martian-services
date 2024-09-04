@@ -5,6 +5,6 @@ metadata:
   annotations:
     github.com/project-slug: mmaheu/martian-services
 spec:
-  type: other
+  type: service
   owner: mmaheu
   lifecycle: unknown
