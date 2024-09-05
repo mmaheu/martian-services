@@ -6,7 +6,6 @@ metadata:
     github.com/project-slug: mmaheu/martian-services
     backstage.io/techdocs-ref: dir:.
 spec:
-  
   type: service
-  owner: mmaheu
+  owner: martian-team
   lifecycle: staging
