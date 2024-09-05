@@ -1,10 +1,8 @@
 apiVersion: backstage.io/v1alpha1
 kind: Group
 metadata:
-  name: martian-team-a
-  description: Team A
-metadata:
   name: martian-services
+  description: Martian Team A
   annotations:
     github.com/project-slug: mmaheu/martian-services
     backstage.io/techdocs-ref: dir:.
@@ -14,6 +12,6 @@ spec:
   owner: martian-relations-team
   system: martian-engagement-portal
   dependsOn:
-    - resource:default/artists-db
+    - resource:default/martian-db
   providesApis:
-    - artist-api
+    - martian-api
