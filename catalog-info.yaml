@@ -11,7 +11,3 @@ spec:
   lifecycle: production
   owner: martian-relations-team
   system: martian-engagement-portal
-  dependsOn:
-    - resource:default/martian-db
-  providesApis:
-    - martian-api
