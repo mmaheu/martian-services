@@ -6,6 +6,11 @@ metadata:
     github.com/project-slug: mmaheu/martian-services
     backstage.io/techdocs-ref: dir:.
 spec:
-  type: service
-  owner: mmaheu
-  lifecycle: unknown
+  type: website
+  lifecycle: production
+  owner: martian-relations-team
+  system: martian-engagement-portal
+  dependsOn:
+    - resource:default/artists-db
+  providesApis:
+    - artist-api
