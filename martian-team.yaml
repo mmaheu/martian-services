@@ -1,0 +1,26 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: martian-team 
+  description: Martian Team 
+spec:
+  type: team
+  profile:
+    # Intentional no displayName for testing
+    email: martian-team@martian.com
+    picture: https://api.dicebear.com/7.x/identicon/svg?seed=Fluffy&backgroundType=solid,gradientLinear&backgroundColor=ffd5dc,b6e3f4
+  parent: backstage
+  children: []
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: mmaheu 
+spec:
+  profile:
+    # Intentional no displayName for testing
+    displayName: Mike Maheu
+    email: mike@venue.sh
+    picture: https://api.dicebear.com/7.x/avataaars/svg?seed=Luna&backgroundColor=transparent
+  memberOf: [martian-team]

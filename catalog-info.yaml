@@ -1,13 +1,12 @@
 apiVersion: backstage.io/v1alpha1
-kind: Group
+kind: Component
 metadata:
   name: martian-services
-  description: Martian Team A
   annotations:
     github.com/project-slug: mmaheu/martian-services
     backstage.io/techdocs-ref: dir:.
 spec:
-  type: website
-  lifecycle: production
-  owner: martian-relations-team
-  system: martian-engagement-portal
+  
+  type: service
+  owner: mmaheu
+  lifecycle: staging
