@@ -1,62 +1,92 @@
 # syntax = docker/dockerfile:1
+FROM ruby:3.4.2-alpine
+LABEL maintainer="midway6@proton.me"
 
-# Make sure RUBY_VERSION matches the Ruby version in .ruby-version and Gemfile
-ARG RUBY_VERSION=3.3.0
-FROM registry.docker.com/library/ruby:$RUBY_VERSION-slim as base
+# Add basic packages
+RUN apk add --no-cache \
+    build-base \
+    gcompat \
+    git \
+    imagemagick-dev \
+    mariadb-dev \
+    nodejs-current \
+    npm \
+    postgresql-dev \
+    sqlite-dev \
+    tzdata \
+    vips-dev \
+    yaml-dev \
+    yarn
 
-# Rails app lives here
-WORKDIR /rails
+WORKDIR /app
 
-# Set production environment
-ENV RAILS_ENV="production" \
-    BUNDLE_DEPLOYMENT="1" \
-    BUNDLE_PATH="/usr/local/bundle" \
-    BUNDLE_WITHOUT="development"
+#### Install standard Node modules
+COPY package.json yarn.lock /app/
+# If your app uses Cypress for end-to-end testing, installing the binary can be slow, so we
+# explicitly exclude it from installing (because tests are not run here)
+ENV CYPRESS_INSTALL_BINARY=0
+# Avoid error "digital envelope routines::initialization error" while compiling assets with Webpack
+# due to OpenSSL 3.0 (included in Alpine 3.17+)
+ENV NODE_OPTIONS=--openssl-legacy-provider
+RUN yarn install --frozen-lockfile
+####
 
+##### Install standard gems
+COPY Gemfile Gemfile.lock /app/
+RUN bundle config --local frozen 1 && \
+    bundle install -j4 --retry 3
+####
 
-# Throw-away build stage to reduce size of final image
-FROM base as build
+#### ONBUILD: Add triggers to the image, executed later while building a child image
 
-# Install packages needed to build gems
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential git libvips pkg-config
+# Copy only the files needed for installing gems
+ONBUILD COPY Gemfile Gemfile.lock /app/
+ONBUILD COPY vendor/ /app/vendor/
+ONBUILD COPY .ruby-version /app/
 
-# Install application gems
-COPY Gemfile Gemfile.lock ./
-RUN bundle install && \
-    rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
-    bundle exec bootsnap precompile --gemfile
+# Install Ruby gems (for production only)
+ONBUILD RUN --mount=type=secret,id=bundleconfig,dst=/root/.bundle/config \
+    bundle config --local without 'development test' && \
+    bundle install -j4 --retry 3 && \
+    # Precompile gems with Bootsnap (and ignore errors)
+    bundle exec bootsnap precompile --gemfile || true && \
+    # Remove unneeded gems
+    bundle clean --force && \
+    # Remove unneeded files from installed gems (cache, *.o, *.c)
+    rm -rf /usr/local/bundle/cache && \
+    find /usr/local/bundle/gems/ -name "*.c" -delete && \
+    find /usr/local/bundle/gems/ -name "*.o" -delete
 
-# Copy application code
-COPY . .
+# Copy the whole application folder into the image
+ONBUILD COPY . /app
 
-# Precompile bootsnap code for faster boot times
-RUN bundle exec bootsnap precompile app/ lib/
+# Precompile application code with Bootsnap (and ignore errors)
+ONBUILD RUN bundle exec bootsnap precompile app/ lib/ || true
 
-# Precompiling assets for production without requiring secret RAILS_MASTER_KEY
-RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
+# Precompile assets
+#
+# Notes:
+#   1. What exactly "assets:precompile" does depends on your JavaScript bundler
+#   2. For an app using encrypted credentials, Rails raises a `MissingKeyError`
+#      if the master key is missing. Because on CI there is no master key,
+#      we hide the credentials while compiling assets (by renaming them before and after)
+#
+ONBUILD RUN mv config/credentials.yml.enc config/credentials.yml.enc.bak 2>/dev/null || true
+ONBUILD RUN mv config/credentials config/credentials.bak 2>/dev/null || true
+ONBUILD RUN --mount=type=secret,id=npmrc,dst=/root/.npmrc \
+    --mount=type=secret,id=yarnrc,dst=/root/.yarnrc.yml \
+    yarn install
+ONBUILD RUN RAILS_ENV=production \
+    SECRET_KEY_BASE=dummy \
+    RAILS_MASTER_KEY=dummy \
+    bundle exec rails assets:precompile
+ONBUILD RUN mv config/credentials.yml.enc.bak config/credentials.yml.enc 2>/dev/null || true
+ONBUILD RUN mv config/credentials.bak config/credentials 2>/dev/null || true
 
-
-# Final stage for app image
-FROM base
-
-# Install packages needed for deployment
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y curl libsqlite3-0 libvips && \
-    rm -rf /var/lib/apt/lists /var/cache/apt/archives
-
-# Copy built artifacts: gems, application
-COPY --from=build /usr/local/bundle /usr/local/bundle
-COPY --from=build /rails /rails
-
-# Run and own only the runtime files as a non-root user for security
-RUN useradd rails --create-home --shell /bin/bash && \
-    chown -R rails:rails db log storage tmp
-USER rails:rails
-
-# Entrypoint prepares the database.
-ENTRYPOINT ["/rails/bin/docker-entrypoint"]
-
-# Start the server by default, this can be overwritten at runtime
-EXPOSE 3000
-CMD ["./bin/rails", "server"]
+# Remove folders not needed in resulting image
+# This includes `app/javascript` which contains the JavaScript source code.
+# Normally it is not needed in the resulting image, because it was compiled
+# to `public/`. But if the app uses import maps, the folder is still required
+# for pinning and must not be removed.
+ONBUILD RUN rm -rf node_modules yarn.lock .yarn .yarnrc.yml vendor/bundle test spec app/packs
+ONBUILD RUN if [ ! -f config/importmap.rb ]; then rm -rf app/javascript; fi

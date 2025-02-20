@@ -1,67 +1,91 @@
-source "https://rubygems.org"
+source 'https://rubygems.org'
+git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby "3.3.0"
+ruby '3.4.2'
 
-# Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "~> 7.1.2"
-
-# The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]
-gem "sprockets-rails"
+# Full-stack web application framework. (https://rubyonrails.org)
+gem 'rails', '~> 8.0.0'
 
 # Use sqlite3 as the database for Active Record
-gem "sqlite3", "~> 1.4"
+gem "sqlite3", ">= 2.1"
 
-# Use the Puma web server [https://github.com/puma/puma]
-gem "puma", ">= 5.0"
+# Sprockets Rails integration (https://github.com/rails/sprockets-rails)
+gem 'sprockets-rails'
 
-# Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]
-gem "importmap-rails"
+# Use Vite in Rails and bring joy to your JavaScript experience (https://github.com/ElMassimo/vite_ruby)
+gem 'vite_rails'
 
-# Hotwire's SPA-like page accelerator [https://turbo.hotwired.dev]
-gem "turbo-rails"
+# A modest JavaScript framework for the HTML you already have. (https://stimulus.hotwired.dev)
+gem 'stimulus-rails'
 
-# Hotwire's modest JavaScript framework [https://stimulus.hotwired.dev]
-gem "stimulus-rails"
+# Pg is the Ruby interface to the PostgreSQL RDBMS (https://github.com/ged/ruby-pg)
+gem 'pg', '~> 1.1'
 
-# Build JSON APIs with ease [https://github.com/rails/jbuilder]
-gem "jbuilder"
+# A Ruby/Rack web server built for parallelism. (https://puma.io)
+gem 'puma', '~> 6'
 
-# Use Redis adapter to run Action Cable in production
-# gem "redis", ">= 4.0.1"
+# The speed of a single-page web application without having to write any JavaScript. (https://github.com/hotwired/turbo-rails)
+gem 'turbo-rails'
 
-# Use Kredis to get higher-level data types in Redis [https://github.com/rails/kredis]
-# gem "kredis"
+# Sass adapter for the Rails asset pipeline. (https://github.com/rails/sass-rails)
+gem 'sass-rails', '>= 6'
 
-# Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
-# gem "bcrypt", "~> 3.1.7"
+# Create JSON structures via a Builder-style DSL (https://github.com/rails/jbuilder)
+gem 'jbuilder'
 
-# Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-gem "tzinfo-data", platforms: %i[ windows jruby ]
+# A fast JSON parser and serializer. (http://www.ohler.com/oj)
+gem 'oj'
 
-# Reduces boot times through caching; required in config/boot.rb
-gem "bootsnap", require: false
+# JSON Implementation for Ruby (https://ruby.github.io/json)
+gem 'json'
 
-# Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
-# gem "image_processing", "~> 1.2"
+# High-level wrapper for processing images for the web with ImageMagick or libvips. (https://github.com/janko/image_processing)
+gem 'image_processing', '~> 1.2'
 
-group :development, :test do
-  # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
-  gem "debug", platforms: %i[ mri windows ]
-end
+# Boot large ruby/rails apps faster (https://github.com/Shopify/bootsnap)
+gem 'bootsnap', require: false
 
-group :development do
-  # Use console on exceptions pages [https://github.com/rails/web-console]
-  gem "web-console"
+# Error reports you can be happy about. (https://www.honeybadger.io/for/ruby/)
+gem 'honeybadger'
 
-  # Add speed badges [https://github.com/MiniProfiler/rack-mini-profiler]
-  # gem "rack-mini-profiler"
+# Tame Rails' multi-line logging into a single line per request (https://github.com/roidrage/lograge)
+gem 'lograge'
 
-  # Speed up commands on slow machines / big apps [https://github.com/rails/spring]
-  # gem "spring"
-end
+# The best pagination ruby gem (https://github.com/ddnexus/pagy)
+gem 'pagy'
 
-group :test do
-  # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
-  gem "capybara"
-  gem "selenium-webdriver"
-end
+# Flexible authentication solution for Rails with Warden (https://github.com/heartcombo/devise)
+gem 'devise'
+
+# Middleware for enabling Cross-Origin Resource Sharing in Rack apps (https://github.com/cyu/rack-cors)
+gem 'rack-cors'
+
+# Block & throttle abusive requests (https://github.com/rack/rack-attack)
+gem 'rack-attack'
+
+# Rack middleware for defining a canonical host name. (https://github.com/tylerhunt/rack-canonical-host)
+gem 'rack-canonical-host'
+
+# Brotli compression for Rack responses (http://github.com/marcotc/rack-brotli/)
+gem 'rack-brotli'
+
+# Slim templates generator for Rails (https://github.com/slim-template/slim-rails)
+gem 'slim-rails'
+
+# A framework for building reusable, testable & encapsulated view components in Ruby on Rails. (https://viewcomponent.org)
+gem 'view_component'
+
+# Simple HTTP and REST client for Ruby, inspired by microframework syntax for specifying actions. (https://github.com/rest-client/rest-client)
+gem 'rest-client'
+
+# Simple, efficient background processing for Ruby (https://sidekiq.org)
+gem 'sidekiq'
+
+# Markdown that smells nice (https://github.com/vmg/redcarpet)
+gem 'redcarpet'
+
+# A comprehensive slugging and pretty-URL plugin. (https://github.com/norman/friendly_id)
+gem 'friendly_id'
+
+# SSL/TLS and general-purpose cryptography for Ruby (https://github.com/ruby/openssl)
+gem 'openssl'
